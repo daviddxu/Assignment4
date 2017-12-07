@@ -51,17 +51,17 @@ function writeRecipesToDatabase(recipes){
      Prepared statements are pre-compiled as SQL so that one cannot
      insert, or inject, SQL commands for the ? parameters.
      */
-     var stmt = db.prepare("INSERT INTO recipes (recipe_name,spices) VALUES (?,?)");
+     var stmt = db.prepare("INSERT INTO recipes (recipe_name,spices,contributor,description,ingredients,source,rating,directions) VALUES (?,?)");
      for (var i = 0; i < recipes.length; i++) {
    	    recipe = recipes[i];
-        stmt.run(recipe.recipe_name, recipe.spices);
+        stmt.run(recipe.recipe_name, recipe.spices, recipe.contributor, recipe.description, recipe.ingredients, recipe.source, recipe.rating, recipe.directions);
      }
      stmt.finalize();
   
-     db.each("SELECT id, recipe_name, spices FROM recipes", function(err, row) {
+     db.each("SELECT id, recipe_name, spices, description, ingredients, source, rating, directions FROM recipes", function(err, row) {
          console.log(row.id + ": " +
              		 row.recipe_name + " " +
-					 row.spices);
+					 row.spices + " " + recipe.contributor + " " +  recipe.description + " " + recipe.ingredients + " " + recipe.source + " " + recipe.rating + " " + recipe.directions);
      });  
 
   });
@@ -107,6 +107,21 @@ lineReader.eachLine(
 		   else if(str === '</recipe>'){
 			   recipes.push(recipe);
 			   recipe = {};
+		   }
+		   else if(str == '</ingredients>'){
+			   recipe.ingredients = dataString;
+		   }
+		   else if(str == '</description>'){
+			   recipe.description = dataString;
+		   }
+		   else if(str == '</rating>'){
+			   recipe.rating = dataString;
+		   }
+		   else if (str == '</source>'){
+			   recipe.source = dataString;
+		   }
+		   else if (str == '</directions>'){
+			   recipe.directions = dataString;
 		   }
            openingTag = '';		   
 		   //console.log("LINE " + str)
